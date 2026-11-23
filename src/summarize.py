@@ -3,13 +3,21 @@ import os
 from pathlib import Path
 
 from huggingface_hub import InferenceClient
+from ollama import Client as OllamaClient
 
-MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+USE_OLLAMA = True
+
+HF_MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+OLLAMA_MODEL_NAME = "cas/llama-3.2-3b-instruct"
 
 def generate_summaries(companies: list[dict], output_path: str):
-    client = InferenceClient(
-        api_key=os.environ["HF_TOKEN"],
-    )
+    # Initialize the appropriate client
+    if USE_OLLAMA:
+        client = OllamaClient()
+        model_name = OLLAMA_MODEL_NAME
+    else:
+        client = InferenceClient(api_key=os.environ["HF_TOKEN"])
+        model_name = HF_MODEL_NAME
 
     system_prompt = """
     You are a corporate analyst tasked with generating concise, objective
@@ -39,10 +47,7 @@ def generate_summaries(companies: list[dict], output_path: str):
     with output_path.open("w", encoding="utf-8") as file:
         for company in companies:
             registration_number = company["registrationNumber"]
-
-            completion = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[
+            messages = [
                     {
                         "role": "system",
                         "content": system_prompt,
@@ -59,12 +64,25 @@ def generate_summaries(companies: list[dict], output_path: str):
                             )
                         ),
                     },
-                ],
-                max_tokens=1024,
-                temperature=0.0,
-            )
+                ]
 
-            summary = completion.choices[0].message.content.strip()
+            if USE_OLLAMA:
+                response = client.chat(
+                    model=model_name,
+                    messages=messages,
+                    options={"temperature": 0},
+                )
+                summary = response.message.content.strip()
+
+            else:
+                completion = client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    max_tokens=1024,
+                    temperature=0.0,
+                )
+
+                summary = completion.choices[0].message.content.strip()
 
             result = {
                 "registrationNumber": registration_number,
