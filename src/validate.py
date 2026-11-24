@@ -3,12 +3,10 @@ from summarize import generate_summaries
 
 from bert_score import score
 
-
 import json
 from pathlib import Path
 
-from bert_score import score
-
+from prompts import PROMPTS
 
 def evaluate_summaries(
     generated_summaries: dict[str, str],
@@ -73,7 +71,9 @@ def evaluate_summaries(
     return results, average_f1
 
 if __name__ == "__main__":
-    companies = load_companies("test/test_companies.jsonl")
-    summaries = generate_summaries(companies, "test/output/test_output.jsonl")
-    expected_summaries = load_companies("test/expected/test_expected.jsonl")
-    evaluate_summaries(summaries, expected_summaries, "test/result/test_result.json")
+    for version, system_prompt in enumerate(PROMPTS):
+        version = version + 1
+        companies = load_companies("test/test_companies.jsonl")
+        summaries = generate_summaries(companies, f"test/output/test_output_{version}.jsonl", system_prompt)
+        expected_summaries = load_companies("test/expected/test_expected.jsonl")
+        evaluate_summaries(summaries, expected_summaries, f"test/result/test_result_{version}.json")
