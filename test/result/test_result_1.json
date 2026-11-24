@@ -1,0 +1,45 @@
+{
+    "results": [
+        {
+            "registrationNumber": "SYN-000546",
+            "bert_score_f1": 0.8295543789863586
+        },
+        {
+            "registrationNumber": "SYN-000067",
+            "bert_score_f1": 0.8107077479362488
+        },
+        {
+            "registrationNumber": "SYN-000545",
+            "bert_score_f1": 0.8141071200370789
+        },
+        {
+            "registrationNumber": "SYN-000286",
+            "bert_score_f1": 0.8155674338340759
+        },
+        {
+            "registrationNumber": "SYN-000282",
+            "bert_score_f1": 0.8048063516616821
+        },
+        {
+            "registrationNumber": "SYN-000165",
+            "bert_score_f1": 0.8121908903121948
+        },
+        {
+            "registrationNumber": "SYN-000451",
+            "bert_score_f1": 0.806575357913971
+        },
+        {
+            "registrationNumber": "SYN-000783",
+            "bert_score_f1": 0.8048028945922852
+        },
+        {
+            "registrationNumber": "SYN-000511",
+            "bert_score_f1": 0.8005404472351074
+        },
+        {
+            "registrationNumber": "SYN-001298",
+            "bert_score_f1": 0.835944414138794
+        }
+    ],
+    "average_bert_score_f1": 0.8134797811508179
+}
