@@ -8,7 +8,7 @@ from ollama import Client as OllamaClient
 
 USE_OLLAMA = False
 
-HF_MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
+HF_MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct:featherless-ai"
 OLLAMA_MODEL_NAME = "cas/llama-3.2-3b-instruct"
 
 MAX_RETRIES = 5
