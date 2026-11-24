@@ -5,12 +5,12 @@ from pathlib import Path
 from huggingface_hub import InferenceClient
 from ollama import Client as OllamaClient
 
-USE_OLLAMA = True
+USE_OLLAMA = False
 
 HF_MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
 OLLAMA_MODEL_NAME = "cas/llama-3.2-3b-instruct"
 
-def generate_summaries(companies: list[dict], output_path: str):
+def generate_summaries(companies: list[dict], output_path: str, system_prompt: str = ""):
     # Initialize the appropriate client
     if USE_OLLAMA:
         client = OllamaClient()
@@ -18,26 +18,6 @@ def generate_summaries(companies: list[dict], output_path: str):
     else:
         client = InferenceClient(api_key=os.environ["HF_TOKEN"])
         model_name = HF_MODEL_NAME
-
-    system_prompt = """
-    You are a corporate analyst tasked with generating concise, objective
-    company summaries using the information provided.
-
-    Write a summary in Markdown covering:
-    - Company overview and business activities
-    - Financial performance, where information is available
-    - Significant business developments
-    - Legal and regulatory matters
-    - Key risks and challenges
-
-    Rules:
-    - Use only the information provided.
-    - Do not invent facts, figures, or events.
-    - Distinguish allegations from established facts.
-    - Preserve financial figures, currencies and reporting periods accurately.
-    - If information for a particular section is unavailable, omit that section.
-    - Write in a professional and objective tone.
-    """
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -55,8 +35,7 @@ def generate_summaries(companies: list[dict], output_path: str):
                     {
                         "role": "user",
                         "content": (
-                            "Generate a company summary using the following "
-                            "company information:\n\n"
+                            "Generate a company summary using the following company information (which is in JSON format):\n\n"
                             + json.dumps(
                                 company,
                                 indent=2,
