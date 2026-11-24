@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import time
 
 from huggingface_hub import InferenceClient
 from ollama import Client as OllamaClient
@@ -9,6 +10,8 @@ USE_OLLAMA = False
 
 HF_MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
 OLLAMA_MODEL_NAME = "cas/llama-3.2-3b-instruct"
+
+MAX_RETRIES = 5
 
 def generate_summaries(companies: list[dict], output_path: str, system_prompt: str = ""):
     # Initialize the appropriate client
@@ -54,11 +57,10 @@ def generate_summaries(companies: list[dict], output_path: str, system_prompt: s
                 summary = response.message.content.strip()
 
             else:
-                completion = client.chat.completions.create(
-                    model=model_name,
+                completion = generate_with_retry(
+                    client=client,
+                    model_name=model_name,
                     messages=messages,
-                    max_tokens=1024,
-                    temperature=0.0,
                 )
 
                 summary = completion.choices[0].message.content.strip()
@@ -79,6 +81,31 @@ def generate_summaries(companies: list[dict], output_path: str, system_prompt: s
 
     return summaries
 
+def generate_with_retry(client, model_name, messages, max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            return client.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=1024,
+                temperature=0.0,
+            )
+
+        except Exception as e:
+            if "429" not in str(e):
+                raise
+
+            if attempt == max_retries - 1:
+                raise
+
+            wait_time = 2 ** (attempt + 1)
+
+            print(
+                f"Rate limited. Retrying in {wait_time} seconds "
+                f"(attempt {attempt + 1}/{max_retries})..."
+            )
+
+            time.sleep(wait_time)
 
 if __name__ == "__main__":
     # company data
