@@ -4,7 +4,10 @@ version = "0.0.0"
 description = "Build, experiment with and evaluate a system that summarises company records."
 requires-python = ">=3.14,<3.15"
 dependencies = [
+  "bert-score>=0.3.13",
   "fastapi",
+  "huggingface-hub>=2.4.0",
+  "ollama>=0.6.3",
   "pydantic",
   "uvicorn",
 ]
